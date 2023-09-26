@@ -1,47 +1,40 @@
-#!/usr/bin/python3
-"""using REST API to identify a given employee"""
-
 import requests
 from sys import argv, exit
 
-
 def inf_empleados():
-    """using REST API Placeholder through parameter"""
     if len(argv) < 2:
         print("You must pass an ID parameter")
         exit()
+    
     parametro_id = int(argv[1])
 
-    url = f"https://jsonplaceholder.typicode.com/todos?userId={parametro_id}"
-    url_nombre = f"https://jsonplaceholder.typicode.com/users/{parametro_id}"
+    url_tasks = f"https://jsonplaceholder.typicode.com/todos?userId={parametro_id}"
+    url_user_info = f"https://jsonplaceholder.typicode.com/users/{parametro_id}"
 
-    respuesta = requests.get(url)
-    respuesta_nombre = requests.get(url_nombre)
-    if respuesta.status_code == 200 and respuesta_nombre.status_code == 200:
-        total_tarea = respuesta.json()
-        informacion_empleado = respuesta_nombre.json()
-        if not total_tarea or not informacion_empleado:
-            print("error in deserialization")
+    response_tasks = requests.get(url_tasks)
+    response_user_info = requests.get(url_user_info)
+
+    if response_tasks.status_code == 200 and response_user_info.status_code == 200:
+        tasks_data = response_tasks.json()
+        user_info_data = response_user_info.json()
+
+        if not tasks_data or not user_info_data:
+            print("Error in deserialization")
             return
-        tarea_completadas = []
-        for tarea in total_tarea:
-            if tarea["completed"]:
-                tarea_completadas.append(tarea)
-        cantidad_tarea_completada = len(tarea_completadas)
-        cantidad_total_tarea = len(total_tarea)
 
-        if "name" in informacion_empleado:
-            nombre_empleado = informacion_empleado.get("name")
-        print("Employee {} is done with tasks({}/{}):"
-              .format(nombre_empleado,
-                      cantidad_tarea_completada,
-                      cantidad_total_tarea))
+        employee_name = user_info_data.get("name", "Unknown")
 
-        for tarea in tarea_completadas:
-            print("\t {}".format(tarea.get("title")))
+        completed_tasks = [task for task in tasks_data if task["completed"]]
+        num_completed_tasks = len(completed_tasks)
+        total_num_tasks = len(tasks_data)
+
+        print(f"Employee {employee_name} has completed {num_completed_tasks}/{total_num_tasks} tasks:")
+        
+        for task in completed_tasks:
+            print(f"\t{task['title']}")
     else:
-        print("status error")
-
+        print("Status error")
 
 if __name__ == '__main__':
     inf_empleados()
+
