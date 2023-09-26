@@ -21,7 +21,10 @@ def get_employee_todo_list(employee_id):
     completed_tasks = sum(1 for task in todo_list if task['completed'])
 
     # Print progress and completed tasks
-    print(f'Employee Name: {employee_name} {"OK" if len(employee_name) == 18 else "Incorrect"}')
+    if len(employee_name) == 18:
+        print(f'Emplyee Name: {employee_name} OK')
+    else:
+        print(f'Employee Name: {employee_name} Incorrect')
 
     # Print titles of completed tasks
     print(f'Employee {employee_name} is done with tasks({completed_tasks}/{total_tasks}):')
