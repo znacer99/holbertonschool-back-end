@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+"""using REST API to identify a given employee"""
 import requests
 from sys import argv, exit
 
