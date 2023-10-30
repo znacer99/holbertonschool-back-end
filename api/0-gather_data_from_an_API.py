@@ -1,42 +1,30 @@
 #!/usr/bin/python3
-"""using REST API to identify a given employee"""
+"""import"""
+import json
 import requests
-from sys import argv, exit
+import sys
 
-def inf_empleados():
-    if len(argv) < 2:
-        print("You must pass an ID parameter")
-        exit()
-    
-    parametro_id = int(argv[1])
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print(f"missing employee id as argument")
+        sys.exit(1)
 
-    url_tasks = f"https://jsonplaceholder.typicode.com/todos?userId={parametro_id}"
-    url_user_info = f"https://jsonplaceholder.typicode.com/users/{parametro_id}"
+    URL = "https://jsonplaceholder.typicode.com"
+    EMPLOYEE_ID = sys.argv[1]
 
-    response_tasks = requests.get(url_tasks)
-    response_user_info = requests.get(url_user_info)
+    EMPLOYEE_TODOS = requests.get(f"{URL}/users/{EMPLOYEE_ID}/todos",
+                                  params={"_expand": "user"})
+    data = EMPLOYEE_TODOS.json()
 
-    if response_tasks.status_code == 200 and response_user_info.status_code == 200:
-        tasks_data = response_tasks.json()
-        user_info_data = response_user_info.json()
-
-        if not tasks_data or not user_info_data:
-            print("Error in deserialization")
-            return
-
-        employee_name = user_info_data.get("name", "Unknown")
-
-        completed_tasks = [task for task in tasks_data if task["completed"]]
-        num_completed_tasks = len(completed_tasks)
-        total_num_tasks = len(tasks_data)
-
-        print(f"Employee {employee_name} has completed {num_completed_tasks}/{total_num_tasks} tasks:")
-        
-        for task in completed_tasks:
-            print(f"\t{task['title']}")
-    else:
-        print("Status error")
-
-if __name__ == '__main__':
-    inf_empleados()
-
+    EMPLOYEE_NAME = data[0]["user"]["name"]
+    TOTAL_NUMBER_OF_TASKS = len(data)
+    NUMBER_OF_DONE_TASKS = 0
+    TASK_TITLE = []
+    for task in data:
+        if task["completed"]:
+            NUMBER_OF_DONE_TASKS += 1
+            TASK_TITLE.append(task["title"])
+    print(f"Employee {EMPLOYEE_NAME} is done with tasks"
+          f"({NUMBER_OF_DONE_TASKS}/{TOTAL_NUMBER_OF_TASKS}):")
+    for title in TASK_TITLE:
+        print("\t ", title)
